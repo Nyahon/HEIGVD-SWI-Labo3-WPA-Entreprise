@@ -36,9 +36,13 @@ Dans cette première partie, vous allez capturer une connexion WPA Entreprise au
 - Etablir une connexion depuis un poste de travail (PC), un smartphone ou une tablette. Attention, il est important que la connexion se fasse à 2.4 GHz pour pouvoir sniffer avec les interfaces Alfa.
 - Comparer votre capture au processus d’authentification expliqué en classe (n’oubliez pas les captures !). En particulier, identifier les étapes suivantes :
 	- Requête et réponse d’authentification système ouvert
+		```N/A```
  	- Requête et réponse d’association
+		```trame 21 et 22```
 	- Sélection de la méthode d’authentification
+		```trame 23 et 24```
 	- Phase d’initiation. Arrivez-vous à voir l’identité du client ?
+		```trame 25, et on l'a vu à la trame 22 (johanna.melly)```
 	- Phase hello :
 		- Version TLS
 		- Suites cryptographiques et méthodes de compression proposées par le client et acceptées par l’AP
@@ -54,13 +58,13 @@ Dans cette première partie, vous allez capturer une connexion WPA Entreprise au
  
 > **_Question :_** Quelle ou quelles méthode(s) d’authentification est/sont proposé(s) au client ?
 > 
-> **_Réponse :_** 
-
+> **_Réponse :_** TLS-EAP. (frame 24)
+	
 ---
 
 > **_Question:_** Quelle méthode d’authentification est utilisée ?
 > 
-> **_Réponse:_** 
+> **_Réponse:_** EAP-PEAP, comme demandé par le client après avoir refusé (legacy nak) le TLS-EAP de l'AP. 
 
 ---
 
@@ -68,11 +72,12 @@ Dans cette première partie, vous allez capturer une connexion WPA Entreprise au
 > 
 > - Le serveur envoie-t-il un certificat au client ? Pourquoi oui ou non ?
 > 
-> **_Réponse:_**
+> **_Réponse:_** Oui, pour procéder à la première étape de l'autehtification. En plus du certificat, la trame (27) contient une clé publique qui pourra être utilisée avec confiance une fois le certificat vérifié par le client (à l'aide de la clé du certificat racine utilisé par le certificat envoyé).
+
 > 
 > - b.	Le client envoie-t-il un certificat au serveur ? Pourquoi oui ou non ?
 > 
-> **_Réponse:_**
+> **_Réponse:_** Non, cela n'est plus nécessaire pour garantir sécurité ou authenticité: le client génère une cléé aléatoire qu'il chiffre avec la clé publique reçue précédemment. 
 > 
 
 ---
@@ -97,13 +102,13 @@ Pour implémenter l’attaque :
 
 > **_Question :_** Quelles modifications sont nécessaires dans la configuration de hostapd-wpe pour cette attaque ?
 > 
-> **_Réponse :_** 
+> **_Réponse :_** Changer le nom du SSID, le nom de l'interface a utiliser. 
 
 ---
 
 > **_Question:_** Quel type de hash doit-on indiquer à john pour craquer le handshake ?
 > 
-> **_Réponse:_** 
+> **_Réponse:_** --format=netntlm 
 
 ---
 
@@ -111,6 +116,13 @@ Pour implémenter l’attaque :
 > 
 > **_Réponse:_**
 
+hostapd-wpe supports the following EAP types for impersonation:
+    1. EAP-FAST/MSCHAPv2 (Phase 0)
+    2. PEAP/MSCHAPv2
+    3. EAP-TTLS/MSCHAPv2
+    4. EAP-TTLS/MSCHAP
+    5. EAP-TTLS/CHAP
+    6. EAP-TTLS/PAP
 
 ## Quelques éléments à considérer :
 
