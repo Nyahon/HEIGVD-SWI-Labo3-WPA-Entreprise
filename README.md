@@ -1,9 +1,7 @@
 - [Livrables](https://github.com/arubinst/HEIGVD-SWI-Labo3-WPA-Entreprise#livrables)
 
 - [Échéance](https://github.com/arubinst/HEIGVD-SWI-Labo3-WPA-Entreprise#échéance)
-
 - [Quelques éléments à considérer](https://github.com/arubinst/HEIGVD-SWI-Labo3-WPA-Entreprise#quelques-éléments-à-considérer-)
-
 - [Travail à réaliser](https://github.com/arubinst/HEIGVD-SWI-Labo3-WPA-Entreprise#travail-à-réaliser)
 
 # Sécurité des réseaux sans fil
@@ -11,6 +9,8 @@
 ## Laboratoire 802.11 Sécurité WPA Entreprise
 
 __A faire en équipes de deux personnes__
+
+###### Par Yohann Meyer et Johanna Melly
 
 ### Objectif :
 
@@ -32,34 +32,81 @@ Il faudra __garder la fenêtre d'airodump ouverte__ en permanence pendant que vo
 Dans cette première partie, vous allez capturer une connexion WPA Entreprise au réseau de l’école avec Wireshark et fournir des captures d’écran indiquant dans chaque capture les données demandées.
 
 - Identifier le canal utilisé par l’AP dont la puissance est la plus élevée. Vous pouvez faire ceci avec ```airodump-ng```, par exemple
+
 - Lancer une capture avec Wireshark
+
 - Etablir une connexion depuis un poste de travail (PC), un smartphone ou une tablette. Attention, il est important que la connexion se fasse à 2.4 GHz pour pouvoir sniffer avec les interfaces Alfa.
-- Comparer votre capture au processus d’authentification expliqué en classe (n’oubliez pas les captures !). En particulier, identifier les étapes suivantes :
+
+- Comparer votre capture au processus d’authentification expliqué en classe (n’oubliez pas les captures !). 
+	
+	![Trames EAP](all.png)
+	
+	En particulier, identifier les étapes suivantes :
+	
 	- Requête et réponse d’authentification système ouvert
 		```N/A```
+	
  	- Requête et réponse d’association
 		```trame 21 et 22```
+	
 	- Sélection de la méthode d’authentification
 		```trame 23 et 24```
+		
 	- Phase d’initiation. Arrivez-vous à voir l’identité du client ?
 		```trame 25, et on l'a vu à la trame 22 (johanna.melly)```
+		
+		![Identity](identity.png)
+		
 	- Phase hello :
+		
+		![Server hello](server_hello.png)
+		
 		- Version TLS
+		
+		  `trame 27, il s'agit de la version 1`
+		
 		- Suites cryptographiques et méthodes de compression proposées par le client et acceptées par l’AP
+		
+		  `trame 31: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384`
+		
 		- Nonces
+		
+		  `trame 26`
+		
+		  ![Nonce](nonce.png)
+		
 		- Session ID
-	- Phase de transmission de certificats
+		
+		  `trame 31 (voir id sur image)`
+		
+	- Phase de transmission de certificat
+	
 	 	- Certificat serveur
+		
 		- Change cipher spec
+		
+		  `trame 26`
+		
+		  ![Change cipher spec](cipherspec.png)
+		
 	- Authentification interne et transmission de la clé WPA (échange chiffré, vu comme « Application data »)
-	- 4-way hadshake
+	
+	  `trames 35 à 41`
+	
+	  ![Authentification interne](auth.png)
+	
+	- 4-way handshake
+	
+	  `trames 44 à 47`
+	
+	  ![4-way-handshake](4wayhandshake.png)
 
 ### Répondez aux questions suivantes :
- 
+
 > **_Question :_** Quelle ou quelles méthode(s) d’authentification est/sont proposé(s) au client ?
 > 
 > **_Réponse :_** TLS-EAP. (frame 24)
-	
+
 ---
 
 > **_Question:_** Quelle méthode d’authentification est utilisée ?
@@ -101,8 +148,10 @@ Pour implémenter l’attaque :
 ### Répondez aux questions suivantes :
 
 > **_Question :_** Quelles modifications sont nécessaires dans la configuration de hostapd-wpe pour cette attaque ?
-> 
+>
 > **_Réponse :_** Changer le nom du SSID, le nom de l'interface a utiliser. 
+>
+> ![Fichier de configuration](hostapd-wpe.conf.png)
 
 ---
 
@@ -113,16 +162,36 @@ Pour implémenter l’attaque :
 ---
 
 > **_Question:_** 6.	Quelles méthodes d’authentification sont supportées par hostapd-wpe ?
-> 
+>
 > **_Réponse:_**
+>
+> hostapd-wpe supports the following EAP types for impersonation:
+>        1. EAP-FAST/MSCHAPv2 (Phase 0)
+>        2. PEAP/MSCHAPv2
+>        3. EAP-TTLS/MSCHAPv2
+>        4. EAP-TTLS/MSCHAP
+>        5. EAP-TTLS/CHAP
+>        6. EAP-TTLS/PAP
 
-hostapd-wpe supports the following EAP types for impersonation:
-    1. EAP-FAST/MSCHAPv2 (Phase 0)
-    2. PEAP/MSCHAPv2
-    3. EAP-TTLS/MSCHAPv2
-    4. EAP-TTLS/MSCHAP
-    5. EAP-TTLS/CHAP
-    6. EAP-TTLS/PAP
+
+
+------
+
+> **Résumé des étapes suivies:**
+>
+> 1.  Changement de la configuration de hostapd-wpe
+>
+> 2. Connection
+>
+> 3. Récupération des résultats:
+>
+>    ![Result hostapd-wpe](hostapd-wpe_result.png)
+>
+> 4. Attaque avec John the Ripper
+>
+>    ![John](john_result.png)
+
+
 
 ## Quelques éléments à considérer :
 
