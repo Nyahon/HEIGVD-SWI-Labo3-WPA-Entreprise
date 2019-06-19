@@ -188,6 +188,8 @@ Pour implémenter l’attaque :
 >    ![Result hostapd-wpe](hostapd-wpe_result.png)
 >
 > 4. Attaque avec John the Ripper
+> 	b. ne pas oublier de passer le résultat de base 64 en hexa, cela a été fait avec 
+>		le code dans b642hex.py.
 >
 >    ![John](john_result.png)
 
